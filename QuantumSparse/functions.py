@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 21 10:40:40 2022
-
-@author: Elia Stocco
-"""
-#%%
 import numpy as np
-
 from .physical_constants import muB,g
 
 #%%
@@ -26,10 +19,9 @@ def Rz(psi):
                    [ np.sin(psi), np.cos(psi) , 0 ],
                    [ 0           , 0            , 1 ]])
 
-    
-
 #%%
 def rotate(EulerAngles,Sx,Sy,Sz):
+
     N = len(Sx)
     SxR = Sx.copy()
     SyR = Sy.copy()
@@ -52,20 +44,13 @@ def rotate(EulerAngles,Sx,Sy,Sz):
 
 #%%
 def magnetic_moment_operator(Sx,Sy,Sz):
-    #global g
-    #global muB
-    Mx = 0#np.sum(g*muB*Sx)
-    My = 0#np.sum(g*muB*Sy)
-    Mz = 0#np.sum(g*muB*Sz)
-    for S in Sx:
-        Mx += S
-    for S in Sy:
-        My += S
-    for S in Sz:
-        Mz += S
-        
-    Mx *= g*muB
-    My *= g*muB
-    Mz *= g*muB
+
+    Mx = 0
+    My = 0
+    Mz = 0
+    for sx,sy,sz in zip(Sx,Sy,Sz):
+        Mx += g*muB*sx
+        My += g*muB*sy
+        Mz += g*muB*sz
     
     return Mx,My,Mz

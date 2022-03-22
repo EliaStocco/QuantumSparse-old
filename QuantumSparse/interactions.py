@@ -1,10 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 21 11:13:58 2022
-
-@author: Elia Stocco
-"""
-#%%
 import numpy as np
 from .functions import magnetic_moment_operator
 
@@ -30,11 +24,6 @@ def Heisenberg(Sx,Sy,Sz,couplings=1.0,nn=1):
     Js = np.asarray(couplings)
     if len(Js.shape) != 2 : 
         Js = np.full((N,3),couplings)
-        
-    # if hasattr(couplings,'__len__') == False :
-    #     Js = np.full((N,3),np.asarray(couplings))
-    # else :
-    #     Js = couplings
     
     return Ising(Sx,Js[:,0],nn) +\
            Ising(Sy,Js[:,1],nn) +\

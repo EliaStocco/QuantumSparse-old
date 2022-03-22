@@ -1,3 +1,4 @@
+# automatically import these functions and variables
 from .spin_operators import compute_spin_operators
 from .eigensolver import diagonalize_Hamiltonian
 from .statistical_physics import susceptibility,quantum_thermal_average_value
