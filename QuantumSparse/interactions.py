@@ -6,6 +6,7 @@ Created on Mon Mar 21 11:13:58 2022
 """
 #%%
 import numpy as np
+from .functions import magnetic_moment_operator
 
 #%%
 def Ising(Ops,couplings=1.0,nn=1):
@@ -26,10 +27,15 @@ def Ising(Ops,couplings=1.0,nn=1):
 #%%
 def Heisenberg(Sx,Sy,Sz,couplings=1.0,nn=1):
     N = len(Sx)
-    if hasattr(couplings,'__len__') == False :
-        Js = np.full(N,couplings)
-    else :
-        Js = couplings
+    Js = np.asarray(couplings)
+    if len(Js.shape) != 2 : 
+        Js = np.full((N,3),couplings)
+        
+    # if hasattr(couplings,'__len__') == False :
+    #     Js = np.full((N,3),np.asarray(couplings))
+    # else :
+    #     Js = couplings
+    
     return Ising(Sx,Js[:,0],nn) +\
            Ising(Sy,Js[:,1],nn) +\
            Ising(Sz,Js[:,2],nn)
@@ -57,3 +63,9 @@ def anisotropy(Ops,couplings):
 
 def rombicity(Sx,Sy,couplings):
     return Ising(Sx,couplings,nn=0) - Ising(Sy,couplings,nn=0)
+
+#%%
+def Zeeman(Sx,Sy,Sz,B):
+    B = np.asarray(B)
+    Mx,My,Mz = magnetic_moment_operator(Sx,Sy,Sz)    
+    return - ( Mx*B[0] + My*B[1] + Mz*B[2] )

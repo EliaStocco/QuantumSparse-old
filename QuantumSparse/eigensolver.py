@@ -33,11 +33,11 @@ def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100):
     else :
         print("\t\tusing a full diagonalization method")
         #print("\t\t{:>40s}".format("full diagonalization"))
-        E,Psi = np.linalg.eig(H.todense())
+        E,Psi = np.linalg.eigh(H.todense())
         
     # sort
     index = np.argsort(E)
     E = E[index]
-    Psi = Psi[index,:]
+    Psi = Psi[:,index]
         
     return E,Psi
