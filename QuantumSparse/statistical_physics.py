@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# some function recalling statistical physics results
 import numpy as np
 from scipy import sparse
 from .physical_constants import kB

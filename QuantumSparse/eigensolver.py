@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# module to solve the eigenvalue problem: Lanczos or full diag. methods are provided
 from scipy import sparse
 from scipy.sparse import linalg
 import numpy as np

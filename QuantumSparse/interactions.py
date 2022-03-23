@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# the most adopted interactions in Spin Hamiltonians
 import numpy as np
 from .functions import magnetic_moment_operator
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# some functions ...
 import numpy as np
 from .physical_constants import muB,g
 
