@@ -22,9 +22,13 @@ def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100):
         print("\t\tusing Lanczos method")
         print("\t\t{:>40s}\t:\t{:<10d}".format("n. eigenvalues in Lanczos method",NLanczos))
         E,Psi = sparse.linalg.eigsh(H,k=NLanczos,tol=1E-8,which="SA")
+        # SA : Smallest Algebraic
     else :
         print("\t\tusing a full diagonalization method")
         E,Psi = np.linalg.eigh(H.todense())
+        
+    # check that eigevectors are orthogonalized: 
+    # np.sqrt(np.square(np.absolute(Psi)).sum(axis=0)) = [1,1,1,1...]
         
     # sort
     index = np.argsort(E)

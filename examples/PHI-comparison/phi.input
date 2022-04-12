@@ -1,0 +1,25 @@
+****spin
+2
+2
+2
+2
+
+****exchange
+1 2 -4.032805
+2 3 -4.032805
+3 4 -4.032805
+4 1 -4.032805
+
+****params
+OpMode Coupling Report
+OpMode Sim LS
+single
+!FullWF
+
+****sus
+Field z
+BSus 0.01
+Sweep 2 300 100 log 
+Differential
+
+****end

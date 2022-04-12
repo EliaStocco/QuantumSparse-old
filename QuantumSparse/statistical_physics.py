@@ -1,7 +1,7 @@
 # some function recalling statistical physics results
 import numpy as np
-from scipy import sparse
 from .physical_constants import kB
+from .quantum_mechanics import expectation_value
 
 #%%
 def partition_function(T,E,beta=None):
@@ -15,13 +15,10 @@ def classical_thermal_average_value(T,E,Obs):
     return (np.exp(-np.tensordot(beta,E-min(E),axes=0))*Obs).sum(axis=1)/Z
 
 def quantum_thermal_average_value(T,E,Op,Psi):
-    V  = sparse.csr_matrix(Psi)
-    Vc = V.conjugate(True)
-    Obs = ((Op @ V).multiply(Vc)).toarray().real.sum(axis=0)
+    Obs = expectation_value(Op,Psi)
     return classical_thermal_average_value(T,E,Obs)
 
-def susceptibility(T,E,OpAs,OpBs,Psi):#,meanA=None,meanB=None):
-    
+def correlation_function(T,E,OpAs,OpBs,Psi):    
     NT = len(T)    
     meanA =  np.zeros((len(OpAs),NT))       
     for n,Op in enumerate(OpAs):
@@ -41,10 +38,14 @@ def susceptibility(T,E,OpAs,OpBs,Psi):#,meanA=None,meanB=None):
             square[n1,n2] = quantum_thermal_average_value(T,E,OpA@OpB,Psi)           
     #
     Chi =  np.zeros((3,3,NT))    
-    beta  = 1.0/(kB*T)
     for n1,OpA in enumerate(OpAs):
         for n2,OpB in enumerate(OpBs):            
             Chi[n1,n2] = (square[n1,n2] - meanA[n1]*meanB[n2])
-                
+    
+    return Chi
+
+def susceptibility(T,E,OpAs,OpBs,Psi):#,meanA=None,meanB=None):    
+    beta  = 1.0/(kB*T)
+    Chi = correlation_function(T,E,OpAs,OpBs,Psi)                
     return 10000 * Chi*beta # cm^{3}/mol
 
