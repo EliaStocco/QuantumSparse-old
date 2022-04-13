@@ -44,16 +44,10 @@ def correlation_function(T,E,OpAs,OpBs,Psi):
     
     return Chi
 
-def susceptibility(T,E,OpAs,OpBs,Psi):#,meanA=None,meanB=None):    
+def susceptibility(T,E,OpAs,OpBs,Psi):
     beta  = 1.0/(kB*T)
     Chi = correlation_function(T,E,OpAs,OpBs,Psi) 
     NA =  6.02214076 # E+23 1/mol
     eV =  1.602176634 #E-19 J 
-    return beta * Chi * NA * eV * 1E3           
-    # return 1.602176634*6.02214076*Chi*beta*1E4 # cm^{3}/mol
-    # new_muB = 9.274009994 #E-27 erg/G
-    # new_kB  = 1.380649    #E-16 erg/K
-    # NA      = 6.02214076  #E+23 1/mol
-    # beta  = 1.0/(new_kB*T)
-    # return (4*np.pi)*NA * beta * Chi * 1E-15
-
+    return beta * Chi * NA * eV * 1E3          
+   
