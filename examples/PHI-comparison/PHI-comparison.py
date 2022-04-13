@@ -10,21 +10,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 #%%
-NLanczos = 30
+NLanczos = 200
 tol = 1E-8
-MaxDim=100
+MaxDim=800
 def diagonalize(H,NLanczos=NLanczos,tol=tol,MaxDim=MaxDim):
     return qs.diagonalize_Hamiltonian(H,NLanczos=NLanczos,tol=tol,MaxDim=MaxDim)
 
 #%%
-S     = 1
-NSpin = 4
+S     = 1./2.
+NSpin = 8
 SpinValues = np.full(NSpin,S)
 
 Sx,Sy,Sz = qs.compute_spin_operators(SpinValues)
 Mx,My,Mz = qs.magnetic_moment_operator(Sx,Sy,Sz)
 
-# Hamiltonian 
+# Hamiltonian [eV]
 H  = qs.Heisenberg(Sx,Sy,Sz,couplings=1E-3,nn=1)
 E,Psi = diagonalize(H)
 
