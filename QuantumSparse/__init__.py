@@ -6,4 +6,5 @@ from .functions import *
 from .interactions import *
 from .physical_constants import *
 from .quantum_mechanics import *
-#from .correlation import *
+from .classical_mechanics import *
+

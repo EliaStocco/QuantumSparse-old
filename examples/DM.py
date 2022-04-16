@@ -1,15 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 21 10:44:56 2022
-
-@author: user
-"""
 #%%
 import sys,os
 dir_ = os.path.dirname(__file__)
 os.chdir(dir_)
 print("\n\tchanging working directory to:",dir_)
-sys.path.append("../..")
+sys.path.append("../")
 import QuantumSparse as qs
 import numpy as np
 import matplotlib.pyplot as plt
