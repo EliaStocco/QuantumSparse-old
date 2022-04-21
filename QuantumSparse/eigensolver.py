@@ -2,26 +2,44 @@
 from scipy import sparse
 from scipy.sparse import linalg
 import numpy as np
+from .functions import prepare_opts
 
 #%% 
-def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100):
-    
-    print("\n\t\"diagonalize_Hamiltonian\" function")
-    
-    dimension = H.shape[0]
-   
-    print("\t\t{:>40s}\t:\t{:<10d}x{:<10d}".format("Hamilonian matrix of dimension",dimension,dimension))
-    print("\t\t{:>40s}\t:\t{:<10.2E}".format("Lanczos tolerance",tol))
-    print("\t\t{:>40s}\t:\t{:<10d}".format("Lanczos n. of eigenvalues",NLanczos))
-    print("\t\t{:>40s}\t:\t{:<10d}".format("Apply full diagonalization up to dimension",MaxDim))
+def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100,opts=None):
+    opts = prepare_opts(opts)    
+    print("\n\t\"diagonalize_Hamiltonian\" function")    
+    dimension = H.shape[0]   
+    print("\t\t{:>40s}\t:{:>6d} x {:<10d}".format("Hamilonian matrix of dimension",dimension,dimension))
+    print("\t\t{:>40s}\t:{:>6.2E}".format("Lanczos tolerance",tol))
+    print("\t\t{:>40s}\t:{:>6d}".format("Lanczos n. of eigenvalues",NLanczos))
+    print("\t\t{:>40s}\t:{:>6d}".format("Apply full diagonalization up to dimension",MaxDim))
     
     print("")
-    NLanczos= min ( NLanczos , H.shape[0]-2)
+    NLanczos= min ( NLanczos , H.shape[0]-1)
     
     if dimension >= MaxDim :
         print("\t\tusing Lanczos method")
         print("\t\t{:>40s}\t:\t{:<10d}".format("n. eigenvalues in Lanczos method",NLanczos))
-        E,Psi = sparse.linalg.eigsh(H,k=NLanczos,tol=1E-8,which="SA")
+        
+        if opts["check-low-T"] > 0 :
+            print("\t\t------------------------------------------------")
+            print("\t\theuristic test on the number of used eigenstates")
+            print("\t\tcontrolling that their number is sufficient to describe low-T properties")
+            print("\t\tlow-T properties should be well described up to {:>4.2f} K (Kelvin)".format(opts["check-low-T"]))
+            Emin,Psi = sparse.linalg.eigsh(H,k=1,tol=tol,which="SA")
+            Emax,Psi = sparse.linalg.eigsh(H,k=1,tol=tol,which="LA")
+            print("\t\t lowest eigenvalue : {:>6.4f} meV".format(Emin[0]*1000))
+            print("\t\thighest eigenvalue : {:>6.4f} meV".format(Emax[0]*1000))
+            # 1K = 0.08617328149741 meV
+            Nmin = int(dimension * opts["check-low-T"] * 0.08617328149741 *1E-3 / ( Emax[0]- Emin[0]))
+            print("\t\tsmallest number of eigenstates to be used : {:>6d}".format(Nmin))
+            if Nmin > NLanczos:
+                print("\n\t\tWARNING : you should increase NLanczos at least up to %d"%(Nmin))
+            else :
+                print("\n\t\tthe number of used eigenstates seems to be sufficient")
+            print("\t\t------------------------------------------------\n")
+            
+        E,Psi = sparse.linalg.eigsh(H,k=NLanczos,tol=tol,which="SA")
         # SA : Smallest Algebraic
     else :
         print("\t\tusing a full diagonalization method")

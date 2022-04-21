@@ -3,11 +3,11 @@ import numpy as np
 import sympy
 from sympy import symbols,cos,sin,Matrix,hessian,lambdify
 from scipy.optimize import minimize
-from .functions import spherical_coordinates,preprare_opts
+from .functions import spherical_coordinates,prepare_opts
 
 #%%
 def get_spin_symbols(NSpin,opts=None):
-    opts = preprare_opts(opts)
+    opts = prepare_opts(opts)
     print(opts,"\n\t\"get_spin_symbols\" function",file=opts["print"])
     Sx = [sympy.symbols('S^x_%d' % i) for i in range(1,NSpin+1)]
     Sy = [sympy.symbols('S^y_%d' % i) for i in range(1,NSpin+1)]
@@ -15,19 +15,18 @@ def get_spin_symbols(NSpin,opts=None):
     return Sx,Sy,Sz
 #%%
 def get_angles_symbols(NSpin,opts=None):
-    opts = preprare_opts(opts)
+    opts = prepare_opts(opts)
     print("\n\t\"get_angles_symbols\" function",file=opts["print"])
     print("\n\t\tallocating sympy symbols for angles defining the spins orientations",file=opts["print"])    
     theta = [sympy.symbols('\\theta_%d' % i) for i in range(1,NSpin+1)] # [0,pi]    
     phi   = [sympy.symbols('\\phi_%d'   % i) for i in range(1,NSpin+1)] # [0,2pi)
     return theta,phi
 #%%
-def get_spin_symbols_angles_dependent(SpinValues,opts=None):
-    opts = preprare_opts(opts)
+def get_spin_symbols_angles_dependent(theta,phi,SpinValues,opts=None):
+    opts = prepare_opts(opts)
     print("\n\t\"get_spin_symbols_angles_dependent\" function",file=opts["print"])
     NSpin = len(SpinValues)
-    theta,phi = get_angles_symbols(NSpin)
-    Sx,Sy,Sz = np.zeros(NSpin,dtype=object)
+    Sx,Sy,Sz =  [np.zeros(NSpin,dtype=object)]*3
     print("\n\t\tcomputing cartesian spins through \"spherical_coordinates\" function",file=opts["print"])
     for i in range(NSpin):
         Sx[i],Sy[i],Sz[i] = spherical_coordinates(SpinValues[i],theta[i],phi[i],cos=sympy.cos,sin=sympy.sin)
@@ -37,7 +36,7 @@ def gradient(f, v): #https://stackoverflow.com/questions/60164477/define-gradien
     return Matrix([f]).jacobian(v)
 #%%
 def get_lambdified_E_grad_Hess(H,theta,phi,opts=None):
-    opts = preprare_opts(opts)
+    opts = prepare_opts(opts)
     print("\n\t\"get_lambdified_E_grad_Hess\" function",file=opts["print"])
     print("\n\t\tcomputing gradient and hessian analytical expression through symbolic computation",file=opts["print"])
     grad_ = gradient(H, theta+phi)
@@ -49,13 +48,13 @@ def get_lambdified_E_grad_Hess(H,theta,phi,opts=None):
     return energy,grad,hess
 #%%
 def minimize_classical_energy(H,NSpin,theta,phi,method='L-BFGS-B',tol=1e-6,NIterMax=10,opts=None):
-    opts = preprare_opts(opts)
+    opts = prepare_opts(opts)
     print("\n\t\"minimize_classical_energy\" function",file=opts["print"])
     print("\n\t\t{:>15s}:{:<10s}".format("method",method),file=opts["print"])
     print("\n\t\t{:>15s}:{:<10.1e}".format("tol",tol),file=opts["print"])
     print("\n\t\t{:>15s}:{:<10d}".format("max n. iter.",NIterMax),file=opts["print"])
     
-    energy,grad,hess = get_lambdified_E_grad_Hess(H)
+    energy,grad,hess = get_lambdified_E_grad_Hess(H,theta,phi)
     jac    = lambda x : grad(x).T.flatten()
    
     bounds = [(0,np.pi) for i in range(NSpin)] + [(0,2*np.pi) for i in range(NSpin)]
@@ -63,16 +62,16 @@ def minimize_classical_energy(H,NSpin,theta,phi,method='L-BFGS-B',tol=1e-6,NIter
     angles = np.zeros((NIterMax,NSpin*2))
     print("\n\t\tstarting cycle of minimizations",file=opts["print"])
     for n in range(NIterMax):
-        string = n+1+"/"+NIterMax ; print(string,file=opts["print"])
+        string = "%d/%d"%(n+1,NIterMax) ; print(string,file=opts["print"])
         x0 = np.random.rand(NSpin*2)*np.asarray( [ np.pi for i in range(NSpin)] + [ 2*np.pi for i in range(NSpin)] )
         res = minimize(fun=energy,x0=x0,jac=jac,hess=hess,bounds=bounds,method=method,tol=tol)
         #
         E[n] = res.fun
         angles[n,:] = res.x    
-        string = "energy: "+res.fun                        ; print(string,file=opts["print"])
-        string = " theta: "+res.x [0:NSpin]*180/np.pi      ; print(string,file=opts["print"])
-        string = "   phi: "+res.x [NSpin: ]*180/np.pi+"\n" ; print(string,file=opts["print"])
-    print("\n\t\tfinisched cycles of minimizations",file=opts["print"])
+        #string = "energy: %f"   %(res.fun)                   ; print(string,file=opts["print"])
+        #string = " theta: %f"   %(res.x [0:NSpin]*180/np.pi) ; print(string,file=opts["print"])
+        #string = "   phi: %f\n" %(res.x [NSpin: ]*180/np.pi) ; print(string,file=opts["print"])
+    print("\n\t\tfinished cycles of minimizations",file=opts["print"])
     if "return-all" not in opts or opts["return-all"] == True :
         return {"lowest-energy-index":np.argmin(E),"energy":E,"angles":angles,"Hamiltonian":energy,"gradient":grad,"hessian":hess}
     else :

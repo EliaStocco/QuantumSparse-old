@@ -2,9 +2,11 @@
 import numpy as np
 from .physical_constants import muB,g
 #%%
-def preprare_opts(opts):
+def prepare_opts(opts):
     opts = {} if opts is None else opts
-    opts["print"] = None if "print" not in opts else opts["print"]
+    opts["print"]       = None   if "print"       not in opts else opts["print"]
+    opts["check-low-T"] = 0  if "check-low-T" not in opts else opts["check-low-T"]
+    #opts["return-S"] = False if "return-S" not in opts else opts["return-S"]
     return opts
 #%%
 # https://www.meccanismocomplesso.org/en/3d-rotations-and-euler-angles-in-python/
@@ -31,8 +33,8 @@ def rotate(EulerAngles,Sx,Sy,Sz):
         SxR[n],SyR[n], SzR[n] = temp[0,0],temp[0,1],  temp[0,2]
     return SxR,SyR,SzR
 #%%
-def magnetic_moment_operator(Sx,Sy,Sz):
-    Mx,My,Mz = 0
+def magnetic_moment_operator(Sx,Sy,Sz,opts=None):
+    Mx,My,Mz = 0,0,0
     for sx,sy,sz in zip(Sx,Sy,Sz):
         Mx += g*muB*sx
         My += g*muB*sy

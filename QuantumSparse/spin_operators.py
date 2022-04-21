@@ -3,17 +3,12 @@ import numpy as np
 from .identity import compute_identity_operator
 from .Sxy import compute_Sxy_operators
 from .Szpm import compute_Szpm_operators
+from .functions import prepare_opts
 
 #%%
 def compute_spin_operators(SpinValues,opts=None):
-    
-    SpinValues = np.asarray(SpinValues)
-    
-    if opts is None:
-        opts = {}
-    if "compute_xy" not in opts:
-        opts["compute_xy"] = False
-        
+    opts = prepare_opts(opts)
+    SpinValues = np.asarray(SpinValues)    
     from_list_to_str = lambda x :  '[ '+ ' '.join([str(i)+" ," for i in x ])[0:-1]+' ]'
         
     print("\n\t\"compute_spin_operators\" function",file=opts["print"])
@@ -38,5 +33,22 @@ def compute_spin_operators(SpinValues,opts=None):
     Sx,Sy,Sz = compute_Sxy_operators(NSpin,iden,sz,sp,sm)
     print("\t\tdone   ",file=opts["print"])    
     
-    return Sx,Sy,Sz    
-    
+    return Sx,Sy,Sz 
+
+#%%
+def compute_total_Sxyz(Ops,opts=None):
+    SpinOp = 0 
+    for Op in Ops:
+        SpinOp += Op
+    return SpinOp
+
+#%%
+def compute_total_S2(Sx,Sy,Sz,opts=None):
+    SxTot= compute_total_Sxyz(Sx)
+    SyTot= compute_total_Sxyz(Sy)
+    SzTot= compute_total_Sxyz(Sz)
+    return SxTot@SxTot +   SyTot@SyTot +  SzTot@SzTot
+        
+#%%
+def from_S2_to_S(S2):
+    return (-1 + np.sqrt(1+ 4*S2))/2.0

@@ -18,7 +18,8 @@ def quantum_thermal_average_value(T,E,Op,Psi):
     Obs = expectation_value(Op,Psi)
     return classical_thermal_average_value(T,E,Obs)
 
-def correlation_function(T,E,OpAs,OpBs,Psi):    
+def correlation_function(T,E,OpAs,OpBs,Psi):
+    # REWRITE THIS FUNCTION EXPLOITING quantum_mechanics.standard_deviation
     NT = len(T)    
     meanA =  np.zeros((len(OpAs),NT))       
     for n,Op in enumerate(OpAs):
