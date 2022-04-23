@@ -5,6 +5,7 @@ from .physical_constants import muB,g
 def prepare_opts(opts):
     opts = {} if opts is None else opts
     opts["print"]       = None   if "print"       not in opts else opts["print"]
+    opts["sort"]        = True   if "sort"       not in opts else opts["sort"]
     opts["check-low-T"] = 0  if "check-low-T" not in opts else opts["check-low-T"]
     #opts["return-S"] = False if "return-S" not in opts else opts["return-S"]
     return opts

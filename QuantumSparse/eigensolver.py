@@ -3,6 +3,7 @@ from scipy import sparse
 from scipy.sparse import linalg
 import numpy as np
 from .functions import prepare_opts
+from .interactions import Zeeman
 
 #%% 
 def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100,opts=None):
@@ -49,8 +50,22 @@ def diagonalize_Hamiltonian(H,NLanczos=100,tol=1E-8,MaxDim=100,opts=None):
     # np.sqrt(np.square(np.absolute(Psi)).sum(axis=0)) = [1,1,1,1...]
         
     # sort
-    index = np.argsort(E)
-    E = E[index]
-    Psi = Psi[:,index]
+    if opts["sort"] :
+        index = np.argsort(E)
+        E = E[index]
+        Psi = Psi[:,index]
         
     return E,Psi
+
+def Zeeman_diagram(H,Barr,Sx,Sy,Sz,NLanczos=100,tol=1E-8,MaxDim=100,opts=None):
+    NN = len(Barr)
+    diagram = np.full((NLanczos,NN),np.nan)
+    E0 = None
+    for n,B in enumerate(Barr):
+        print(n+1,"/",NN)
+        HB = H + Zeeman(Sx,Sy,Sz,B)
+        E,Psi = diagonalize_Hamiltonian(HB,NLanczos=NLanczos,tol=tol,MaxDim=MaxDim,opts=opts)
+        if n == 0 :
+            E0 = min(E)
+        diagram[:,n] = E-E0
+    return diagram #eV
