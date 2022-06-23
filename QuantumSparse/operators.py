@@ -1,10 +1,11 @@
-# operators class
+# "operators" class
 from scipy import sparse
 import numpy as np
 
 #%%
 class operators:
     
+    @staticmethod
     def identity(dimensions):
         """
         Parameters
@@ -18,13 +19,18 @@ class operators:
             array of the identity operators for each site, represented with sparse matrices,
             acting on the local (only one site) Hilbert space
         """
-        N = len(dimensions)
-        iden = np.zeros(N,dtype=object)
-        for i,dim in zip(range(N),dimensions):
-            print("\t",i+1,"/",N,end="\r")        
-            iden[i] = sparse.diags(np.full(dim,1,dtype=int),dtype=int)           
-        return iden
+        if not hasattr(dimensions, '__len__'):
+            iden = operators.identity([dimensions])[0]
+            return iden
+        else :            
+            N = len(dimensions)
+            iden = np.zeros(N,dtype=object)
+            for i,dim in zip(range(N),dimensions):
+                print("\t",i+1,"/",N,end="\r")        
+                iden[i] = sparse.diags(np.full(dim,1,dtype=int),dtype=int)           
+            return iden
     
+    @staticmethod
     def sum(Ops):
         """
         Parameters
@@ -47,3 +53,15 @@ class operators:
         for Op in Ops:
             tot += Op
         return tot
+    
+    #%%
+    @staticmethod
+    def commutator(A,B):
+        C = A @ B - B @ A 
+        return C
+    
+    #%%
+    @staticmethod
+    def anticommutator(A,B):
+        C = A @ B + B @ A 
+        return C

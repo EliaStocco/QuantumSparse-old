@@ -20,6 +20,10 @@ class spin_operators(operators):
             (site-independent) spin value: it must be integer of semi-integer
         spin_values : numpy.array, optional
             numpy.array containing the spin values for each site: they can be integer of semi-integer
+            
+        Returns
+        -------
+        None
         """
         
         print("\n\tconstructor of \"SpinSystem\" class")     
@@ -37,7 +41,9 @@ class spin_operators(operators):
         Sx,Sy,Sz = self.compute_spin_operators(self.SpinValues,opts)
         self.Sx = Sx
         self.Sy = Sy
-        self.Sz = Sz        
+        self.Sz = Sz   
+        
+        return
         
 
     #%%
@@ -256,7 +262,7 @@ class spin_operators(operators):
             
             vp = np.sqrt( (s-m)*(s+m+1) )[1:]
             vm = np.sqrt( (s+m)*(s-m+1) )[0:-1]
-            Sp[i] = sparse.diags(vp,offsets=1 )
+            Sp[i] = sparse.diags(vp,offsets= 1)
             Sm[i] = sparse.diags(vm,offsets=-1)
     
         return Sz,Sp,Sm

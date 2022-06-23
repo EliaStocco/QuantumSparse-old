@@ -64,10 +64,11 @@ def DM(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
     return H
 
 #%%
-def anisotropy(Ops,couplings,opts=None):
-    return Ising(Ops,couplings,nn=0,opts=opts)
+def anisotropy(Sz,couplings,opts=None):
+    return Ising(Sz,couplings,nn=0,opts=opts)
 
-def rombicity(Sx,Sy,couplings,opts=None):
+#%%
+def rhombicity(Sx,Sy,couplings,opts=None):
     return Ising(Sx,couplings,nn=0,opts=opts) - Ising(Sy,couplings,nn=0,opts=opts)
 
 #%%

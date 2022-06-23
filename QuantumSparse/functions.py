@@ -7,6 +7,7 @@ def prepare_opts(opts):
     opts["print"]       = None   if "print"       not in opts else opts["print"]
     opts["sort"]        = True   if "sort"       not in opts else opts["sort"]
     opts["check-low-T"] = 0  if "check-low-T" not in opts else opts["check-low-T"]
+    opts["inplace"]     = True   if "inplace"       not in opts else opts["inplace"]
     #opts["return-S"] = False if "return-S" not in opts else opts["return-S"]
     return opts
 #%%
@@ -33,14 +34,14 @@ def rotate(EulerAngles,Sx,Sy,Sz):
         temp = R @ np.asarray([Sx[n],Sy[n],Sz[n]])
         SxR[n],SyR[n], SzR[n] = temp[0,0],temp[0,1],  temp[0,2]
     return SxR,SyR,SzR
-#%%
-def magnetic_moment_operator(Sx,Sy,Sz,opts=None):
-    Mx,My,Mz = 0,0,0
-    for sx,sy,sz in zip(Sx,Sy,Sz):
-        Mx += g*muB*sx
-        My += g*muB*sy
-        Mz += g*muB*sz    
-    return Mx,My,Mz
+# #%%
+# def magnetic_moment_operator(Sx,Sy,Sz,opts=None):
+#     Mx,My,Mz = 0,0,0
+#     for sx,sy,sz in zip(Sx,Sy,Sz):
+#         Mx += g*muB*sx
+#         My += g*muB*sy
+#         Mz += g*muB*sz    
+#     return Mx,My,Mz
 #%%
 def spherical_coordinates(r,theta,phi,cos=np.cos,sin=np.sin):
     x = r*cos(phi)*sin(theta)
