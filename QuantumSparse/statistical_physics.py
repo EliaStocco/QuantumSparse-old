@@ -1,6 +1,6 @@
 # some function recalling statistical physics results
 import numpy as np
-from .physical_constants import kB,muB
+from .physical_constants import kB,g,_NA,_eV,muB
 from .quantum_mechanics import expectation_value
 
 #%%
@@ -48,7 +48,15 @@ def correlation_function(T,E,OpAs,OpBs,Psi):
 def susceptibility(T,E,OpAs,OpBs,Psi):
     beta  = 1.0/(kB*T)
     Chi = correlation_function(T,E,OpAs,OpBs,Psi) 
-    NA =  6.02214076 # E+23 1/mol
-    eV =  1.602176634 #E-19 J 
-    return beta * Chi * NA * eV * 1E3          
+    return beta * Chi * _NA * _eV * 1E3  
+
+def Curie_constant(SpinValues,gfactors=None):
+    N = len(SpinValues)
+    if gfactors is None :
+        gfactors = np.full(N,g)
+    CW = np.zeros(N)
+    for i in range(N):
+        chi = gfactors[i]**2*muB**2*SpinValues[i]*(SpinValues[i]+1)/(3.*kB)
+        CW[i] = _NA * _eV * 1E3  * chi 
+    return CW.sum()
    

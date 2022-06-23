@@ -9,6 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #%%
+so = qs.spin_operators(S=1,N=4)
+
+#%%
 S     = 1
 NSpin = 4
 SpinValues = np.full(NSpin,S)
