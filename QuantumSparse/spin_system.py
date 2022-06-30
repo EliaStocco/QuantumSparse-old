@@ -8,13 +8,25 @@ from .quantum_system import quantum_system
 class spin_system(spin_operators,quantum_system):
     
     #%%
-    def __init__(self,N=1,S=0.5,spin_values=None,classical=False,opts=None):
-        super(spin_operators, self).__init__(N,S,spin_values,opts)
-        super(quantum_system, self).__init__(0)
-        self.classical = classical
+    def __init__(self,N=1,S=0.5,spin_values=None,classical=False,opts=None,*args,**kwargs):
+        
+        self.classical = classical     
+        kwargs["N"] = N
+        kwargs["S"] = S
+        kwargs["spin_values"] = spin_values
+        kwargs["opts"] = opts
+        kwargs["H"] = 0 
+        #super().__init__(N=N,S=S,spin_values=spin_values,opts=opts,*args,**kwargs)
+        super().__init__(*args,**kwargs)
+        #super(quantum_system).__init__(H=0,args=args,kwargs=kwargs)
+        
+        # https://realpython.com/python-super/
+        #super().__init__(*args, **kwargs)
+        
+        return
     
     #%%
-    def nspin(self):
+    def nsites(self):
         N = len(self.SpinValues)
         return N
     

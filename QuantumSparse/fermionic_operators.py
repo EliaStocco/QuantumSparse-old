@@ -9,97 +9,161 @@ from scipy import sparse
 class fermionic_operators(operators):
     
     #%%
-    def __init__(self,N=1,deg_names=["spin"],deg_keys=[["up","dw"]],opts=None):
+    def __init__(self,N,quantum_numbers,opts=None,**kwargs):
         
         print("\n\tconstructor of \"fermionic_operators\" class")   
         opts = prepare_opts(opts)
         
-        self.QuantumNumbers = deg_names
-        Nd = len(deg_names)
-        
-        if Nd != len(deg_keys) :
-            print("\t\terror: array of different lenghts")
-            raise()
-        if not all(isinstance(x, str) for x in deg_names):
-            print("\t\terror: each element of \"deg_names\" must be a string")
-            raise()
-        # for i in deg_keys:
-        #     if not all(isinstance(x, str) for x in i):
-        #         print("\t\terror: each element of \"deg_keys\" must be list of strings")
-        #         raise()
-        
-        self.quantum_numbers_keys = {}
-        for n,i in enumerate(deg_names):
-            self.quantum_numbers_keys[i] = deg_keys[n]
-            
-        if N > 1 :
-           self.quantum_numbers = ["site"] +  self.quantum_numbers            
-          
-        columns = pd.MultiIndex.from_product(deg_keys, names=deg_names)
-        index = np.arange(0,N)
-        self.columns = columns
-        self.index = index
-        self.operators_template = pd.DataFrame(columns=columns,index=index,dtype=object)
-        self.constructor_operators = self.operators_template.copy()
-        self.destructor_operators  = self.operators_template.copy()
+        self._quantum_numbers = quantum_numbers
+        self._index = pd.MultiIndex.from_product(list(self._quantum_numbers.values()),\
+                                                names=self._quantum_numbers.keys())
+        self._template = pd.Series(index=self._index,dtype=object)
+        self._constructor_operators = self._template.copy()
+        self._destructor_operators  = self._template.copy()
+        self._number_operators = None
                 
         c_dag = fermionic_operators.constructor_fermionic_operator()
         c     = fermionic_operators.destructor_fermionic_operator()
         iden  = fermionic_operators.identity(2)
-        
-        all_index = list(pd.MultiIndex.from_product([list(self.index)]+deg_keys, names=["site"]+deg_names))
-        Iden = np.full(len(all_index),iden)
+
+        Iden = np.full(len(self._index),iden)
         C    = Iden.copy()
         Cdag = Iden.copy()
         
-        for i in self.index: #sites
-            for j in self.columns: #quantum numbers
-                k = all_index.index(tuple([i]+list(j)))
-                C[k] = c
-                Cdag [k] = c_dag
-                
-                for In,Out in zip([Cdag,C],[self.constructor_operators,self.destructor_operators]):
-                    Out.at[i,j] = In[0]
-                    for n in range(1,len(In)):
-                        Out.at[i,j] = Out.at[i,j] @ In[n]
-                
-                C[k] = iden
-                Cdag[k] = iden
+        
+        N = len(self._index)
+        for n,i in enumerate(self._index): #quantum numbers
+            print("\t\tcomputing the constructor and destructor operators",n+1,"/",N,end="\r")
+            C[n] = c
+            Cdag [n] = c_dag
             
+            for In,Out in zip([Cdag,C],[self._constructor_operators,self._destructor_operators]):
+                Out.at[i] = In[0]
+                for m in range(1,len(In)):
+                    Out.at[i] = sparse.kron( Out.at[i] , In[m] )
+            
+            # restore original values
+            C[n] = iden
+            Cdag[n] = iden
+        print("\t\tcomputed the constructor and destructor operators          ")
+            
+        self._constructor_operators.astype(object)
+        self._destructor_operators.astype(object)
+        
+        # https://realpython.com/python-super/
+        super().__init__(**kwargs)
+        
         return        
         
     #%%
     def n_quantum_numbers(self):
-        N = len(self.QuantumNumbers)
+        N = len(self._quantum_numbers)
         return N
     
     #%%
-    def index(self,key=None):
-        if key is None:
-            out = self.index
-        elif key not in self.index.keys():
-            print("\n\terror in \"index\" method: key \"",key,"\" does not exists")
-            raise()
-        else :
-            out = self.index[key]
+    # def get_index(self,dtype="MultiIndex"):
+    #     if dtype == "MultiIndex":
+    #         return self._index
+    #     elif dtype == "numpy.array":
+    #         return np.asarray(list(self._index),dtype=object)
+        
+    #%%
+    def get_template(self,dtype=object):
+        out = self._template.copy().astype(dtype)
         return out
     
     #%%
-    def number_operators(self,sum_over=None):
-        N = self.operators_template.copy()
-        for i in self.index: #sites
-            for j in self.columns: #quantum numbers
-                N.at[i,j] = self.constructor_operators.at[i,j] @ self.destructor_operators.at[i,j]
-        return N        
+    def sub_index(self,quantum_numbers):
+        todrop = list(set(self._quantum_numbers) - set(quantum_numbers)) # not ordered
+        new_indexes = self._index.droplevel(todrop).unique()
+        return new_indexes
+    
+    #%%
+    def masks(self,quantum_numbers=None):
+        if quantum_numbers is None:
+            quantum_numbers = self._quantum_numbers
+            
+        # todrop = list(set(self._quantum_numbers) - set(quantum_numbers)) # not ordered
+        # todrop_num = [list(self._quantum_numbers.keys()).index(i) for i in todrop]
+        # tokeep_num = [list(self._quantum_numbers.keys()).index(i) for i in quantum_numbers]
+        # todrop_num.sort()
+        # tokeep_num.sort()
+        # new_indexes = self._index.droplevel(todrop_num).unique()
+        # index_num = self.get_index(dtype="numpy.array")
+        
+        # out = pd.Series(index=new_indexes,dtype=object)
+        # for i in new_indexes:
+        #     out.at[i] = [tuple(index_num[j,tokeep_num]) == tuple([i]) for j in range(len(index_num))]
+        #     out.at[i] = list(self._index[out.at[i]])
+            
+        # return out
+        
+        tokeep_num = [list(self._quantum_numbers.keys()).index(i) for i in quantum_numbers]
+        tokeep_num.sort()
+        if len(tokeep_num) == 1 :
+            tokeep_num = tokeep_num[0]
+        
+        new_indexes = self.sub_index(quantum_numbers)
+        out = pd.Series(index=new_indexes,dtype=object)
+        old_index = pd.Series(index=self._index,data=list(self._index))
+        
+        for i in new_indexes:
+            a = old_index.xs(i,level=tokeep_num)
+            out.at[i] = list(a)
+            
+        return out
+    
+    #%%
+    # def index(self,key=None):
+    #     if key is None:
+    #         out = self._index
+    #     elif key not in self._index.keys():
+    #         print("\n\terror in \"index\" method: key \"",key,"\" does not exists")
+    #         raise()
+    #     else :
+    #         out = self._index[key]
+    #     return out
+    
+    #%%
+    def quantum_numbers(self,only_keys=False,dtype=list):
+        if only_keys:
+            out =  self._quantum_numbers.keys()
+            if dtype is not None:
+                out = dtype(out)
+        else :
+            out = self._quantum_numbers
+        return out
+    
+    #%%
+    def number_operators(self,quantum_numbers=None):
+        if self._number_operators is None:
+            self._number_operators = self._template.copy()
+            for i in self._index:
+                self._number_operators.at[i] = \
+                    self._constructor_operators.at[i] @ \
+                    self._destructor_operators.at[i]
+                    
+        if quantum_numbers == "all" or quantum_numbers == self.quantum_numbers(only_keys=True) :
+            out = self._number_operators.copy()
+        elif quantum_numbers is None or quantum_numbers == []:
+            out = self._number_operators.sum()
+        else :            
+            masks = self.masks(quantum_numbers)
+            out = pd.Series(index=self.sub_index(quantum_numbers),\
+                            dtype=object)
+            for i in out.index:
+                out.at[i] = self._number_operators[masks[i]].sum()
+            
+        return out
     
     #%%
     @staticmethod
     def constructor_fermionic_operator():
-        c_dag = sparse.diags([1],offsets= 1).todense()
+        c_dag = sparse.diags([1],offsets= 1)#.todense()
         return c_dag
             
     #%%
     @staticmethod
     def destructor_fermionic_operator():
-        c = sparse.diags([1],offsets=-1).todense()
+        c = sparse.diags([1],offsets=-1)#.todense()
         return c       

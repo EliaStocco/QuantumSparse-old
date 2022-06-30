@@ -3,13 +3,15 @@ from .functions import prepare_opts
 from scipy import sparse
 import numpy as np
 #%%
-class quantum_system:
+class quantum_system(object):
     
     #%%
-    def __init__(self,H):
+    def __init__(self,H=0,*args,**kwargs):
         self.Hamiltonian = H
         self.eigenstates = None
         self.eigenvalues = None
+        # https://realpython.com/python-super/
+        super().__init__(*args, **kwargs)
         
     #%%
     def ground_state(self,H=None,tol=1E-8,MaxDim=100,opts=None):
@@ -23,10 +25,10 @@ class quantum_system:
         opts = prepare_opts(opts)    
         print("\n\t\"diagonalize_Hamiltonian\" function")    
         dimension = H.shape[0]   
-        print("\t\t{:>40s}\t:{:>6d} x {:<10d}".format("Hamilonian matrix of dimension",dimension,dimension))
-        print("\t\t{:>40s}\t:{:>6.2E}".format("Lanczos tolerance",tol))
-        print("\t\t{:>40s}\t:{:>6d}".format("Lanczos n. of eigenvalues",NLanczos))
-        print("\t\t{:>40s}\t:{:>6d}".format("Apply full diagonalization up to dimension",MaxDim))
+        print("\t\t{:>40s}\t:{:>10d} x {:<10d}".format("Hamilonian matrix of dimension",dimension,dimension))
+        print("\t\t{:>40s}\t:{:>10.2E}".format("Lanczos tolerance",tol))
+        print("\t\t{:>40s}\t:{:>10d}".format("Lanczos n. of eigenvalues",NLanczos))
+        print("\t\t{:>40s}\t:{:>10d}".format("Apply full diagonalization up to dimension",MaxDim))
         
         print("")
         NLanczos= min ( NLanczos , H.shape[0]-1)

@@ -8,9 +8,9 @@ from .operators import operators
 from .functions import prepare_opts
 
 #%%
-class spin_operators(operators):
+class spin_operators(operators,object):
     
-    def __init__(self,N=1,S=0.5,spin_values=None,opts=None):
+    def __init__(self,N=1,S=0.5,spin_values=None,opts=None,*args,**kwargs):
         """
         Parameters
         ----------
@@ -41,7 +41,10 @@ class spin_operators(operators):
         Sx,Sy,Sz = self.compute_spin_operators(self.SpinValues,opts)
         self.Sx = Sx
         self.Sy = Sy
-        self.Sz = Sz   
+        self.Sz = Sz  
+        
+        # https://realpython.com/python-super/
+        super().__init__(*args, **kwargs)
         
         return
         

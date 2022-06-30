@@ -1,9 +1,16 @@
-# "operators" class
+# "operator" class
 from scipy import sparse
 import numpy as np
 
 #%%
-class operators:
+class operators(object):
+    
+    #%%
+    def __init__(self,*args,**kwargs):
+        # https://realpython.com/python-super/
+        super().__init__(*args,**kwargs)
+        
+    #%%
     
     @staticmethod
     def identity(dimensions):
@@ -16,7 +23,7 @@ class operators:
         Returns
         -------
         iden : numpy.array of scipy.sparse
-            array of the identity operators for each site, represented with sparse matrices,
+            array of the identity operator for each site, represented with sparse matrices,
             acting on the local (only one site) Hilbert space
         """
         if not hasattr(dimensions, '__len__'):
@@ -26,8 +33,9 @@ class operators:
             N = len(dimensions)
             iden = np.zeros(N,dtype=object)
             for i,dim in zip(range(N),dimensions):
-                print("\t",i+1,"/",N,end="\r")        
-                iden[i] = sparse.diags(np.full(dim,1,dtype=int),dtype=int)           
+                #print("\t",i+1,"/",N,end="\r")        
+                #iden[i] = sparse.diags(np.full(dim,1,dtype=int),dtype=int)  
+                iden[i] = sparse.identity(dim,dtype=int)  
             return iden
     
     @staticmethod
@@ -36,18 +44,18 @@ class operators:
         Parameters
         ----------
         Ops : np.array of scipy.sparse
-            array of operators to be summed,
+            array of operator to be summed,
             each acting on the system Hilbert space
         
         Returns
         -------
         tot : scipy.sparse
-            sum of given operators
+            sum of given operator
         """
         dims = [ Op.shape for Op in Ops ]
         boolean = [ dim == dims[0] for dim in dims ]
         if not np.all(boolean) :
-            print("\t\terror in \"sum\" function: not all operators with the same (matrix representation) dimensions")
+            print("\t\terror in \"sum\" function: not all operator with the same (matrix representation) dimensions")
             raise()
         tot = 0 
         for Op in Ops:
@@ -65,3 +73,20 @@ class operators:
     def anticommutator(A,B):
         C = A @ B + B @ A 
         return C
+    
+#%%
+# class quantum_operator(sparse.spmatrix):
+    
+#     #%%
+#     def __init__(self, *args):
+#         sparse.spmatrix.__init__(self,args)
+        
+#     #%%
+#     def is_diagonal(self):
+#         #if sparse :
+#         A = self.tolil()
+#         A.setdiag(np.zeros(A.shape[0]))
+#         return A.count_nonzero() == 0
+#         # else :
+#         #     print("not yet implemented")
+#         #     raise()   
