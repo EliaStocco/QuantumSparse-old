@@ -1,4 +1,4 @@
-#%%
+
 import sys,os
 dir_ = os.path.dirname(__file__)
 os.chdir(dir_)
@@ -9,14 +9,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-#%%
+
 NLanczos = 200
 tol = 1E-8
 MaxDim=800
 def diagonalize(H,NLanczos=NLanczos,tol=tol,MaxDim=MaxDim):
     return qs.diagonalize_Hamiltonian(H,NLanczos=NLanczos,tol=tol,MaxDim=MaxDim)
 
-#%%
+
 S     = 1./2.
 NSpin = 8
 SpinValues = np.full(NSpin,S)
@@ -28,7 +28,7 @@ Mx,My,Mz = qs.magnetic_moment_operator(Sx,Sy,Sz)
 H  = qs.Heisenberg(Sx,Sy,Sz,couplings=1E-3,nn=1)
 E,Psi = diagonalize(H)
 
-#%%
+
 spectrum = np.loadtxt("phi_levels.res") # cm^{-1}
 spectrum *= 0.123983 # meV
 
@@ -46,7 +46,7 @@ ax.grid(True)
 plt.tight_layout()
 plt.savefig("spectrum.png")
 
-#%%
+
 B = 0.01
 HB = H + qs.Zeeman(Sx,Sy,Sz,B=[0,0,B])
 E,Psi = diagonalize(HB)

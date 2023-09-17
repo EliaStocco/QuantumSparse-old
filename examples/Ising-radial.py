@@ -1,4 +1,4 @@
-#%%
+
 import sys,os
 dir_ = os.path.dirname(__file__)
 os.chdir(dir_)
@@ -8,12 +8,12 @@ import QuantumSparse as qs
 import numpy as np
 import matplotlib.pyplot as plt
 
-#%%
+
 S     = 2
 NSpin = 4
 SpinValues = np.full(NSpin,S)
 
-#%%
+
 Sx,Sy,Sz = qs.compute_spin_operators(SpinValues)
 
 # Hamiltonian 
@@ -24,7 +24,7 @@ E0.sort()
 E0 = E0-min(E0)
 #print(E)
 
-#%%
+
 
 Sx,Sy,Sz = qs.compute_spin_operators(SpinValues)
 EulerAngles = np.asarray([[0,0,0],\
@@ -40,7 +40,7 @@ St,Sr,Sz= qs.rotate(EulerAngles,Sx,Sy,Sz)
 H = qs.Ising(Sr)
 E1,Psi = qs.diagonalize_Hamiltonian(H,NLanczos=20,tol=1E-8,MaxDim=100)
 
-#%%
+
 fig,((ax0),(ax1)) = plt.subplots(2,1,figsize=(10,10),sharex=True)
 axes = [ax0,ax1]
 
