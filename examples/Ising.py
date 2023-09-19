@@ -1,6 +1,7 @@
 from QuantumSparse.spin.spin_operators import spin_operators
 import numpy as np
 from QuantumSparse.operator.operator import operator
+from QuantumSparse.spin.interactions import Ising
 from scipy import sparse
 
 def main():
@@ -11,7 +12,7 @@ def main():
 
     spins = spin_operators(SpinValues)
 
-    a = sparse.csr_matrix(spins.Sx[0])
+    H = Ising(spins.Sz)
    
     print("\n\tJob done :)\n")
 
