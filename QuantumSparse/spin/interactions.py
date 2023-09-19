@@ -1,8 +1,8 @@
 # the most adopted interactions in Spin Hamiltonians
 import numpy as np
-from ..tools.functions import magnetic_moment_operator
+# from ..tools.functions import magnetic_moment_operator
 
-__all__ = [ "Row_by_Col_mult",\
+__all__ = [ #"Row_by_Col_mult",\
             "Ising",\
             "Heisenberg",\
             "DM",\
@@ -10,18 +10,18 @@ __all__ = [ "Row_by_Col_mult",\
             "rhombicity",\
             "Zeeman"]
 
-def Row_by_Col_mult(A,B,opts=None):
-    """
-    Row by Columns multiplication
-    """
-    if opts is None :
-        opts = {}
-    if "sympy" in opts and opts["sympy"] == True :
-        opts["function"] = lambda a,b : a*b
-    elif "function" not in opts:
-        opts["function"] = lambda a,b : a@b
+# def Row_by_Col_mult(A,B,opts=None):
+#     """
+#     Row by Columns multiplication
+#     """
+#     if opts is None :
+#         opts = {}
+#     if "sympy" in opts and opts["sympy"] == True :
+#         opts["function"] = lambda a,b : a*b
+#     elif "function" not in opts:
+#         opts["function"] = lambda a,b : a@b
         
-    return opts["function"](A,B)
+#     return opts["function"](A,B)
         
 
 
@@ -36,7 +36,8 @@ def Ising(Ops,couplings=1.0,nn=1,opts=None):
         Js = couplings
         
     for i,j,J in zip(index_I,index_J,Js):
-        H +=J * Row_by_Col_mult(Ops[i],Ops[j],opts=opts)
+        #H +=J * Row_by_Col_mult(Ops[i],Ops[j],opts=opts)
+        H = H + J * ( Ops[i] @ Ops[j] )
         
     return H
 
@@ -61,12 +62,15 @@ def DM(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
     if len(Js.shape) != 2 : 
         Js = np.full((N,3),couplings)
         
-    RbC = lambda a,b : Row_by_Col_mult(a,b,opts=opts)
+    #RbC = lambda a,b : Row_by_Col_mult(a,b,opts=opts)
         
     for i,j,J in zip(index_I,index_J,Js):
-        H += J[0] * ( RbC(Sy[i],Sz[j]) - RbC(Sz[i],Sy[j])) 
-        H += J[1] * ( RbC(Sz[i],Sx[j]) - RbC(Sx[i],Sz[j]))
-        H += J[2] * ( RbC(Sx[i],Sy[j]) - RbC(Sy[i],Sx[j])) 
+        # H += J[0] * ( RbC(Sy[i],Sz[j]) - RbC(Sz[i],Sy[j])) 
+        # H += J[1] * ( RbC(Sz[i],Sx[j]) - RbC(Sx[i],Sz[j]))
+        # H += J[2] * ( RbC(Sx[i],Sy[j]) - RbC(Sy[i],Sx[j])) 
+        H += J[0] * ( Sy[i]@Sz[j] - Sz[i]@Sy[j])
+        H += J[1] * ( Sz[i]@Sx[j] - Sx[i]@Sz[j])
+        H += J[2] * ( Sx[i]@Sy[j] - Sy[i]@Sx[j]) 
         
     return H
 
@@ -79,7 +83,7 @@ def rhombicity(Sx,Sy,couplings,opts=None):
     return Ising(Sx,couplings,nn=0,opts=opts) - Ising(Sy,couplings,nn=0,opts=opts)
 
 
-def Zeeman(Sx,Sy,Sz,B,opts=None):
-    B = np.asarray(B)
-    Mx,My,Mz = magnetic_moment_operator(Sx,Sy,Sz,opts)    
-    return - ( Mx*B[0] + My*B[1] + Mz*B[2] )
+# def Zeeman(Sx,Sy,Sz,B,opts=None):
+#     B = np.asarray(B)
+#     Mx,My,Mz = magnetic_moment_operator(Sx,Sy,Sz,opts)    
+#     return - ( Mx*B[0] + My*B[1] + Mz*B[2] )

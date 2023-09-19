@@ -7,7 +7,7 @@ from scipy import sparse
 from ..operator.operator import operator
 from ..tools.functions import prepare_opts
 from ..tools.functional import output
-from ..linalg import diags, kron
+# from ..matrix import diags, kron
 
 
 class spin_operators():
@@ -49,7 +49,7 @@ class spin_operators():
         self.Sz = Sz  
         
         
-        # return
+        # return Sx,Sy,Sz
         
 
    
@@ -273,12 +273,12 @@ class spin_operators():
             # print("\t\t",i+1,"/",NSpin,end="\r")
             
             m = np.linspace(s,-s,deg)
-            Sz[i] = diags(m,dtype=float)          
+            Sz[i] = operator.diags(m,dtype=float)          
             
             vp = np.sqrt( (s-m)*(s+m+1) )[1:]
             vm = np.sqrt( (s+m)*(s-m+1) )[0:-1]
-            Sp[i] = diags(vp,offsets= 1)
-            Sm[i] = diags(vm,offsets=-1)
+            Sp[i] = operator.diags(vp,offsets= 1)
+            Sm[i] = operator.diags(vm,offsets=-1)
     
         return Sz,Sp,Sm
 
@@ -330,7 +330,7 @@ class spin_operators():
                 Ops[i] = zpm[i]
                 out[i] = Ops[0]
                 for j in range(1,NSpin):
-                    out[i] = kron(out[i],Ops[j]) 
+                    out[i] = operator.kron(out[i],Ops[j]) 
                     
         for i in range(NSpin):
             Sx[i] = spin_operators.compute_sx(Sp[i],Sm[i])
