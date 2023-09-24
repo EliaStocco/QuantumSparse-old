@@ -87,13 +87,13 @@ class spin_operators():
             
         print("\n\t\"compute_spin_operators\" function")
         print("\n\t\tinput parameters:")
-        print("\t\t{:>20s}\t:\t{:<60s}".format("spin values",from_list_to_str(SpinValues)))
+        print("\t\t{:>20s} : {:<60s}".format("spin values",from_list_to_str(SpinValues)))
             
         NSpin        = len(SpinValues)     
-        print("\t\t{:>20s}\t:\t{:<60d}".format("N spins",NSpin))
+        print("\t\t{:>20s} : {:<60d}".format("N spins",NSpin))
         
         dimensions = spin_operators.dimensions(SpinValues)#(2*SpinValues+1).astype(int)
-        print("\t\t{:>20s}\t:\t{:<60s}".format("dimensions",from_list_to_str(dimensions)))
+        print("\t\t{:>20s} : {:<60s}".format("dimensions",from_list_to_str(dimensions)))
        
         print("\t\tallocating single Sz,S+,S- operators (on the single-spin Hilbert space) ... ",end="")
         sz,sp,sm = spin_operators.compute_Szpm_operators(SpinValues)

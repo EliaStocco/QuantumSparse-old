@@ -10,6 +10,17 @@ __all__ = [ #"Row_by_Col_mult",\
             "rhombicity",\
             "Zeeman"]
 
+def extract_Sxyz(func):
+    def wrapper(spins,*argc,**argv):
+        if spins is not None:
+            Sx,Sy,Sz = spins.Sx, spins.Sy, spins.Sz
+            return func(Sx=Sx,Sy=Sy,Sz=Sz,spins=None,*argc,**argv)
+        else :
+            return func(spins=None,*argc,**argv)
+    return wrapper
+
+    
+
 # def Row_by_Col_mult(A,B,opts=None):
 #     """
 #     Row by Columns multiplication
@@ -24,10 +35,9 @@ __all__ = [ #"Row_by_Col_mult",\
 #     return opts["function"](A,B)
         
 
-
-def Ising(Ops,couplings=1.0,nn=1,opts=None):
+def Ising(S,couplings=1.0,nn=1,opts=None):
     H = 0
-    N = len(Ops)
+    N = len(S)
     index_I = np.arange(0,N)
     index_J = np.asarray([ j+nn if j+nn < N else j+nn-N for j in index_I ])
     if hasattr(couplings,'__len__') == False :
@@ -37,12 +47,14 @@ def Ising(Ops,couplings=1.0,nn=1,opts=None):
         
     for i,j,J in zip(index_I,index_J,Js):
         #H +=J * Row_by_Col_mult(Ops[i],Ops[j],opts=opts)
-        H = H + J * ( Ops[i] @ Ops[j] )
+        H = H + J * ( S[i] @ S[j] )
         
     return H
 
-
-def Heisenberg(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
+@extract_Sxyz
+def Heisenberg(Sx=None,Sy=None,Sz=None,spins=None,couplings=1.0,nn=1,opts=None):
+    if spins is not None:
+        Sx,Sy,Sz = spins.Sx, spins.Sy, spins.Sz
     N = len(Sx)
     Js = np.asarray(couplings)
     if len(Js.shape) != 2 : 
@@ -52,8 +64,8 @@ def Heisenberg(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
            Ising(Sy,Js[:,1],nn,opts=opts) +\
            Ising(Sz,Js[:,2],nn,opts=opts)
 
-
-def DM(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
+@extract_Sxyz
+def DM(Sx=None,Sy=None,Sz=None,spins=None,couplings=1.0,nn=1,opts=None):
     H = 0
     N = len(Sx)
     index_I = np.arange(0,N)
@@ -74,10 +86,8 @@ def DM(Sx,Sy,Sz,couplings=1.0,nn=1,opts=None):
         
     return H
 
-
 def anisotropy(Sz,couplings,opts=None):
     return Ising(Sz,couplings,nn=0,opts=opts)
-
 
 def rhombicity(Sx,Sy,couplings,opts=None):
     return Ising(Sx,couplings,nn=0,opts=opts) - Ising(Sy,couplings,nn=0,opts=opts)

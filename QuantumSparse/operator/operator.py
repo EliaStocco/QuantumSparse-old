@@ -8,6 +8,10 @@ class operator(matrix):
     def __init__(self,*argc,**argv):
         # https://realpython.com/python-super/
         super().__init__(*argc,**argv)
+
+        self.eigenvalues = None
+        self.eigenstates = None
+        self.permutation = None
         pass
     
     @staticmethod
@@ -35,6 +39,32 @@ class operator(matrix):
                 #iden[i] = sparse.diags(np.full(dim,1,dtype=int),dtype=int)  
                 iden[i] = matrix.identity(dim,dtype=int)  
             return iden
+       
+    @staticmethod
+    def commutator(A,B):
+        C = A @ B - B @ A 
+        return C
+    
+    @staticmethod
+    def anticommutator(A,B):
+        C = A @ B + B @ A 
+        return C
+    
+    def eigen(self):
+        return {"eigenvalues":self.eigenvalues,"eigenstates":self.eigenstates}
+    
+    def diagonalize(self,inplace=False,**argv):
+
+        if not self.is_hermitean():
+            raise ValueError("'operator' is not hermitean")
+        
+        w,f,permutation = super().diagonalize()
+        self.eigenvalues = w
+        self.eigenstates = f
+        self.permutation = permutation
+
+        return self.eigenvalues, self.eigenstates
+
     
     # @staticmethod
     # def sum(Ops):
@@ -59,16 +89,4 @@ class operator(matrix):
     #     for Op in Ops:
     #         tot += Op
     #     return tot
-    
-   
-    @staticmethod
-    def commutator(A,B):
-        C = A @ B - B @ A 
-        return C
-    
-   
-    @staticmethod
-    def anticommutator(A,B):
-        C = A @ B + B @ A 
-        return C
     
